@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Forgery Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Video Forgery Detection</h1>
+            <p class="subtitle">SRM + CNN + LSTM + SVM Pipeline</p>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('predict') }}" method="post" enctype="multipart/form-data" class="upload-form">
+            <div class="file-input-wrapper">
+                <label for="video" class="file-label">
+                    <span class="file-icon">&#128249;</span>
+                    <span>Choose a video file</span>
+                    <span class="file-hint">mp4, avi, mov, mkv, wmv</span>
+                </label>
+                <input type="file" id="video" name="video" accept="video/*" required>
+                <span id="file-name" class="file-name"></span>
+            </div>
+            <button type="submit" class="btn-submit">Analyze Video</button>
+        </form>
+
+        {% if result %}
+        <div class="result-card {{ result|lower }}">
+            <h2>Prediction Result</h2>
+            <div class="result-label">{{ result }}</div>
+            <div class="result-confidence">Confidence: {{ confidence }}</div>
+        </div>
+        {% endif %}
+
+        <footer>
+            <p>Video Forgery Detection System &mdash; Powered by SRM, CNN, LSTM &amp; SVM</p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById('video').addEventListener('change', function () {
+            var name = this.files[0] ? this.files[0].name : '';
+            document.getElementById('file-name').textContent = name;
+        });
+    </script>
+</body>
+</html>

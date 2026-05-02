@@ -1,0 +1,79 @@
+# ---------- Datasets (huge, don't commit) ----------
+dataset/
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Extracted frames / landmarks / embeddings
+*.npy
+*.npz
+
+# ---------- Trained models (large binaries) ----------
+models/
+*.keras
+*.h5
+*.pkl
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.tflite
+
+# ---------- Results / generated artifacts ----------
+results/
+*.png
+*.jpg
+*.jpeg
+*.pdf
+*.csv
+!requirements.txt
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual envs
+venv/
+env/
+.venv/
+.env/
+ENV/
+
+# ---------- IDE / OS ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------- Caches ----------
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# ---------- Logs ----------
+*.log
+logs/

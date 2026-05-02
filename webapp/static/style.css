@@ -1,0 +1,186 @@
+/* ===== Reset & Base ===== */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    color: #e0e0e0;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ===== Container ===== */
+.container {
+    width: 100%;
+    max-width: 560px;
+    padding: 2.5rem 2rem;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    text-align: center;
+}
+
+/* ===== Header ===== */
+header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    background: linear-gradient(90deg, #00c6ff, #0072ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+    font-size: 0.9rem;
+    color: #aaa;
+    margin-bottom: 1.5rem;
+}
+
+/* ===== Flash Messages ===== */
+.alert {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+
+.alert-error {
+    background: rgba(255, 71, 87, 0.2);
+    border: 1px solid rgba(255, 71, 87, 0.5);
+    color: #ff6b6b;
+}
+
+/* ===== Upload Form ===== */
+.upload-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.file-input-wrapper {
+    position: relative;
+}
+
+.file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 1.5rem;
+    border: 2px dashed rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.file-label:hover {
+    border-color: #0072ff;
+    background: rgba(0, 114, 255, 0.08);
+}
+
+.file-icon {
+    font-size: 2rem;
+}
+
+.file-hint {
+    font-size: 0.75rem;
+    color: #888;
+}
+
+input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-name {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.85rem;
+    color: #00c6ff;
+    word-break: break-all;
+}
+
+/* ===== Button ===== */
+.btn-submit {
+    padding: 0.85rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: linear-gradient(90deg, #0072ff, #00c6ff);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.3s, transform 0.15s;
+}
+
+.btn-submit:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn-submit:active {
+    transform: translateY(0);
+}
+
+/* ===== Result Card ===== */
+.result-card {
+    padding: 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 1.5rem;
+}
+
+.result-card h2 {
+    font-size: 1rem;
+    margin-bottom: 0.6rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #ccc;
+}
+
+.result-label {
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+}
+
+.result-confidence {
+    margin-top: 0.4rem;
+    font-size: 0.95rem;
+    color: #bbb;
+}
+
+.result-card.real {
+    background: rgba(46, 213, 115, 0.15);
+    border: 1px solid rgba(46, 213, 115, 0.4);
+}
+
+.result-card.real .result-label {
+    color: #2ed573;
+}
+
+.result-card.fake {
+    background: rgba(255, 71, 87, 0.15);
+    border: 1px solid rgba(255, 71, 87, 0.4);
+}
+
+.result-card.fake .result-label {
+    color: #ff4757;
+}
+
+/* ===== Footer ===== */
+footer {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: #666;
+}
