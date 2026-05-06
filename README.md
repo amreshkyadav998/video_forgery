@@ -10,8 +10,10 @@ Detect deepfake / forged videos using a pipeline that combines **Steganalysis Ri
 video_forgery_project/
 ├── dataset/
 │   └── UADFV/
-│       ├── real/                    # Real .mp4 video files
-│       └── fake/                    # Fake/deepfake .mp4 video files
+│       ├── real/                    # UADFV real .mp4 videos (49)
+│       │   └── realnew/             # FaceForensics++ c23 real videos (1,000)
+│       └── fake/                    # UADFV fake .mp4 videos (49)
+│           └── fakenew/             # FaceForensics++ c23 fake videos (1,500)
 ├── models/
 │   ├── cnn_classifier.keras         # Fine-tuned MobileNetV2 classifier
 │   ├── lstm_model.keras             # Trained LSTM model
@@ -53,9 +55,26 @@ pip install -r requirements.txt
 
 ## Dataset
 
-Place the UADFV dataset in `dataset/UADFV/`
+The model uses two combined deepfake datasets, both placed under `dataset/UADFV/`:
 
-Each video is an `.mp4` file. The loader extracts up to **30 frames per video** at 224×224 resolution.
+| Source | Real | Fake | Total |
+|---|:---:|:---:|:---:|
+| **UADFV** (top-level `real/`, `fake/`) | 49 | 49 | 98 |
+| **FaceForensics++ c23** (in `realnew/`, `fakenew/`) | 1,000 | 1,500 | 2,500 |
+| **Total Available** | **1,049** | **1,549** | **2,598** |
+
+Each video is an `.mp4` file. The loader (`load_data.py`) walks both top-level folders and their subfolders recursively (`os.walk`), extracting up to **30 frames per video** at 224×224 resolution.
+
+### Training Scope
+
+Although **2,598 videos are available** in the combined dataset, the current model was trained on a **balanced 1,000-video subset** (≈500 real + 500 fake) drawn from this pool, using a **pair-level 80/20 train-test split**:
+
+| Split | Videos |
+|---|:---:|
+| Training | ~800 |
+| Testing | ~200 |
+
+The pair-level split (`pair_level_split` in `main.py`) ensures no scene/identity leakage — the same source identity never appears in both train and test sets.
 
 ---
 
@@ -182,7 +201,9 @@ Open **http://127.0.0.1:5001** in your browser.
 
 ---
 
-## Model Performance (UADFV Test Set)
+## Model Performance (Combined UADFV + FF++ c23 Test Set)
+
+Trained on a 1,000-video balanced subset (UADFV + FaceForensics++ c23) with an 80/20 pair-level split.
 
 | Metric | Value |
 |---|---|
