@@ -97,6 +97,37 @@ def _crop_faces_with_count(frames):
     return np.array(crops, dtype=np.float32), detected
 
 
+def _save_stage_images(images, out_dir, prefix, max_images=6):
+    """
+    Persist up to *max_images* evenly-sampled frames from *images* to
+    *out_dir* as PNGs.  Inputs are expected to be float arrays in [0, 1]
+    in BGR colour order (matches OpenCV's native layout).
+
+    Returns
+    -------
+    list[str]  filenames written (relative to *out_dir*)
+    """
+    if images is None or len(images) == 0:
+        return []
+
+    os.makedirs(out_dir, exist_ok=True)
+    n = len(images)
+    k = min(max_images, n)
+    idxs = np.linspace(0, n - 1, k, dtype=int)
+
+    saved = []
+    for j, i in enumerate(idxs):
+        img = images[int(i)]
+        img_u8 = np.clip(img * 255.0, 0, 255).astype(np.uint8)
+        fname = f"{prefix}_{j:02d}.png"
+        fpath = os.path.join(out_dir, fname)
+        cv2.imwrite(fpath, img_u8)
+        saved.append(fname)
+
+    logger.info(f"Saved {len(saved)} {prefix} images to {out_dir}")
+    return saved
+
+
 def _check_ood_centroid(features, stats_path="models/train_stats.npz"):
     """
     Centroid-based OOD detection calibrated from training data.
@@ -142,7 +173,20 @@ def _check_ood_centroid(features, stats_path="models/train_stats.npz"):
 
 def predict_video(video_path,
                   cnn_model_path="models/cnn_classifier.keras",
-                  svm_path="models/svm_model.pkl"):
+                  svm_path="models/svm_model.pkl",
+                  save_dir=None):
+    """
+    Run end-to-end inference on *video_path*.
+
+    Parameters
+    ----------
+    video_path     : path to the input video.
+    cnn_model_path : path to the trained CNN classifier (.keras).
+    svm_path       : path to the trained SVM (.pkl).
+    save_dir       : optional directory where intermediate stage images
+                     (raw frames, face crops, SRM residuals) will be
+                     persisted as PNGs.  If None, nothing is written.
+    """
     if not os.path.isfile(video_path):
         raise FileNotFoundError(f"Video not found: {video_path}")
 
@@ -150,8 +194,19 @@ def predict_video(video_path,
     if frames.size == 0:
         raise ValueError("No frames extracted from the video.")
 
+    if save_dir:
+        _save_stage_images(frames, os.path.join(save_dir, "frames"), "frame")
+
     face_crops, n_faces = _crop_faces_with_count(frames)
     face_ratio = n_faces / len(frames)
+
+    if save_dir:
+        _save_stage_images(face_crops, os.path.join(save_dir, "faces"), "face")
+
+    srm_frames = np.array([apply_srm(f) for f in face_crops], dtype=np.float32)
+
+    if save_dir:
+        _save_stage_images(srm_frames, os.path.join(save_dir, "srm"), "srm")
 
     if face_ratio < MIN_FACE_RATIO:
         logger.info(f"Too few faces ({n_faces}/{len(frames)}). "
@@ -161,7 +216,6 @@ def predict_video(video_path,
     cnn, extractor = _get_models(cnn_model_path)
 
     cnn_raw = extractor.predict(face_crops, batch_size=32, verbose=0)
-    srm_frames = np.array([apply_srm(f) for f in face_crops], dtype=np.float32)
     cnn_srm = extractor.predict(srm_frames, batch_size=32, verbose=0)
     srm_stats = extract_srm_stats(srm_frames)
     combined = np.concatenate([cnn_raw, cnn_srm, srm_stats], axis=1)

@@ -3,55 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Forgery Detection</title>
+    <title>DeepGuard &mdash; Video Forgery Detection</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Video Forgery Detection</h1>
-            <p class="subtitle">SRM + CNN + LSTM + SVM Pipeline</p>
-        </header>
+    <div class="bg-orbs" aria-hidden="true">
+        <span class="orb orb-1"></span>
+        <span class="orb orb-2"></span>
+        <span class="orb orb-3"></span>
+    </div>
+
+    <nav class="navbar">
+        <div class="brand">
+            <span class="brand-mark">DG</span>
+            <div class="brand-text">
+                <span class="brand-name">DeepGuard</span>
+                <span class="brand-tag">Video Forgery Detection</span>
+            </div>
+        </div>
+        <div class="nav-pills">
+            <span class="pill pill-dot">SRM</span>
+            <span class="pill pill-dot">CNN</span>
+            <span class="pill pill-dot">LSTM</span>
+            <span class="pill pill-dot">SVM</span>
+        </div>
+    </nav>
+
+    <main class="page">
+        <section class="hero">
+            <span class="eyebrow">Forensic Pipeline &middot; Hybrid Ensemble</span>
+            <h1 class="hero-title">
+                Detect manipulated videos with
+                <span class="grad">spatio-temporal</span> intelligence.
+            </h1>
+            <p class="hero-sub">
+                Upload a clip and DeepGuard runs face cropping, SRM noise residual extraction,
+                deep CNN features and an SVM ensemble to classify it as <b>REAL</b> or <b>FAKE</b>.
+            </p>
+        </section>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
+                <div class="alerts">
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div class="alert alert-{{ category }}">
+                        <span class="alert-icon">!</span>
+                        <span>{{ message }}</span>
+                    </div>
                 {% endfor %}
+                </div>
             {% endif %}
         {% endwith %}
 
-        <form action="{{ url_for('predict') }}" method="post" enctype="multipart/form-data" class="upload-form">
-            <div class="file-input-wrapper">
-                <label for="video" class="file-label">
-                    <span class="file-icon">&#128249;</span>
-                    <span>Choose a video file</span>
-                    <span class="file-hint">mp4, avi, mov, mkv, wmv</span>
-                </label>
-                <input type="file" id="video" name="video" accept="video/*" required>
-                <span id="file-name" class="file-name"></span>
+        <section class="card upload-card">
+            <div class="card-head">
+                <h2 class="card-title">Analyze a video</h2>
+                <span class="card-sub">Supported: mp4 &middot; avi &middot; mov &middot; mkv &middot; wmv</span>
             </div>
-            <button type="submit" class="btn-submit">Analyze Video</button>
-        </form>
+
+            <form id="uploadForm"
+                  action="{{ url_for('predict') }}"
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="upload-form">
+
+                <label id="dropzone" for="video" class="dropzone">
+                    <div class="dz-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" width="32" height="32" fill="none"
+                             stroke="currentColor" stroke-width="1.8"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 16V4M12 4l-4 4M12 4l4 4"/>
+                            <path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>
+                        </svg>
+                    </div>
+                    <div class="dz-text">
+                        <strong>Drop a video here</strong>
+                        <span>or click to browse from your computer</span>
+                    </div>
+                    <span id="file-name" class="file-name" hidden></span>
+                    <input type="file" id="video" name="video" accept="video/*" required>
+                </label>
+
+                <button type="submit" id="submitBtn" class="btn-submit">
+                    <span class="btn-label">Analyze Video</span>
+                    <span class="btn-spinner" aria-hidden="true"></span>
+                </button>
+            </form>
+        </section>
 
         {% if result %}
-        <div class="result-card {{ result|lower }}">
-            <h2>Prediction Result</h2>
-            <div class="result-label">{{ result }}</div>
-            <div class="result-confidence">Confidence: {{ confidence }}</div>
-        </div>
+        <section class="card result-card {{ result|lower }}">
+            <div class="result-head">
+                <span class="result-eyebrow">Prediction</span>
+                <span class="result-badge">
+                    <span class="dot"></span>
+                    {{ result }}
+                </span>
+            </div>
+
+            <div class="result-confidence-row">
+                <div class="conf-label">
+                    <span>Confidence</span>
+                    <strong>{{ confidence }}</strong>
+                </div>
+                <div class="conf-bar">
+                    <div class="conf-fill" style="width: {{ confidence_pct }}%"></div>
+                </div>
+            </div>
+
+            {% if video_name or run_id %}
+            <div class="result-meta-grid">
+                {% if video_name %}
+                <div class="meta-item">
+                    <span class="meta-key">File</span>
+                    <span class="meta-val">{{ video_name }}</span>
+                </div>
+                {% endif %}
+                {% if run_id %}
+                <div class="meta-item">
+                    <span class="meta-key">Run ID</span>
+                    <span class="meta-val mono">{{ run_id }}</span>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </section>
         {% endif %}
 
-        <footer>
-            <p>Video Forgery Detection System &mdash; Powered by SRM, CNN, LSTM &amp; SVM</p>
+        {% if stage_groups %}
+        <section class="card intermediates">
+            <div class="card-head">
+                <h2 class="card-title">Pipeline Intermediates</h2>
+                <span class="card-sub">
+                    Saved to <code>results/images/{{ run_id }}/</code>
+                </span>
+            </div>
+
+            {% for group in stage_groups %}
+            <div class="stage">
+                <div class="stage-head">
+                    <span class="stage-step">{{ loop.index }}</span>
+                    <h3 class="stage-label">{{ group.label }}</h3>
+                    <span class="stage-count">{{ group.images|length }} images</span>
+                </div>
+                <div class="thumb-grid">
+                    {% for img_url in group.images %}
+                    <button type="button"
+                            class="thumb"
+                            data-full="{{ img_url }}"
+                            aria-label="Open image">
+                        <img src="{{ img_url }}" alt="{{ group.label }}" loading="lazy">
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+
+        <footer class="page-footer">
+            <span>DeepGuard &middot; Hybrid SRM + CNN + LSTM + SVM pipeline</span>
+            <span class="footer-dim">Local &middot; Private &middot; On-device inference</span>
         </footer>
+    </main>
+
+    <div id="lightbox" class="lightbox" hidden>
+        <button type="button" class="lightbox-close" aria-label="Close">&times;</button>
+        <img id="lightboxImg" src="" alt="">
     </div>
 
     <script>
-        document.getElementById('video').addEventListener('change', function () {
-            var name = this.files[0] ? this.files[0].name : '';
-            document.getElementById('file-name').textContent = name;
-        });
+        (function () {
+            const fileInput = document.getElementById('video');
+            const dropzone = document.getElementById('dropzone');
+            const fileName = document.getElementById('file-name');
+            const form = document.getElementById('uploadForm');
+            const submitBtn = document.getElementById('submitBtn');
+
+            function setName(name) {
+                if (!name) {
+                    fileName.hidden = true;
+                    fileName.textContent = '';
+                    dropzone.classList.remove('has-file');
+                    return;
+                }
+                fileName.hidden = false;
+                fileName.textContent = name;
+                dropzone.classList.add('has-file');
+            }
+
+            fileInput.addEventListener('change', function () {
+                setName(this.files[0] ? this.files[0].name : '');
+            });
+
+            ['dragenter', 'dragover'].forEach(ev =>
+                dropzone.addEventListener(ev, e => {
+                    e.preventDefault();
+                    dropzone.classList.add('drag-over');
+                })
+            );
+            ['dragleave', 'drop'].forEach(ev =>
+                dropzone.addEventListener(ev, e => {
+                    e.preventDefault();
+                    dropzone.classList.remove('drag-over');
+                })
+            );
+            dropzone.addEventListener('drop', e => {
+                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                    fileInput.files = e.dataTransfer.files;
+                    setName(e.dataTransfer.files[0].name);
+                }
+            });
+
+            form.addEventListener('submit', function () {
+                if (!fileInput.files[0]) return;
+                submitBtn.classList.add('loading');
+                submitBtn.disabled = true;
+            });
+
+            const lightbox = document.getElementById('lightbox');
+            const lightboxImg = document.getElementById('lightboxImg');
+            const closeBtn = lightbox.querySelector('.lightbox-close');
+
+            document.querySelectorAll('.thumb').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    lightboxImg.src = btn.dataset.full;
+                    lightbox.hidden = false;
+                    document.body.classList.add('no-scroll');
+                });
+            });
+            function closeLightbox() {
+                lightbox.hidden = true;
+                lightboxImg.src = '';
+                document.body.classList.remove('no-scroll');
+            }
+            closeBtn.addEventListener('click', closeLightbox);
+            lightbox.addEventListener('click', e => {
+                if (e.target === lightbox) closeLightbox();
+            });
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && !lightbox.hidden) closeLightbox();
+            });
+        })();
     </script>
 </body>
 </html>
