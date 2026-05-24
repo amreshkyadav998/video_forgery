@@ -57,12 +57,6 @@ pip install -r requirements.txt
 
 The model uses two combined deepfake datasets, both placed under `dataset/UADFV/`:
 
-| Source | Real | Fake | Total |
-|---|:---:|:---:|:---:|
-| **UADFV** (top-level `real/`, `fake/`) | 49 | 49 | 98 |
-| **FaceForensics++ c23** (in `realnew/`, `fakenew/`) | 1,000 | 1,500 | 2,500 |
-| **Total Available** | **1,049** | **1,549** | **2,598** |
-
 Each video is an `.mp4` file. The loader (`load_data.py`) walks both top-level folders and their subfolders recursively (`os.walk`), extracting up to **30 frames per video** at 224×224 resolution.
 
 ### Training Scope
@@ -275,5 +269,4 @@ Final Prediction: REAL / FAKE
 
 - Python 3.8+
 - 16 GB RAM recommended
-- CPU only (uses `tensorflow-cpu`; no GPU required)
 - Windows / Linux / macOS
